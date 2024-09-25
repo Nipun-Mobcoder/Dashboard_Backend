@@ -3,7 +3,7 @@ import User from "../../models/User.js";
 
 const roleResolver = {
   Query: {
-    getData: async (parent, args, context) => {
+    getData: async (_parent, args, context) => {
       try {
         const decoded = jwt.verify(context.token, process.env.JWT_Secret);
         return decoded;
@@ -14,7 +14,7 @@ const roleResolver = {
     },
   },
   Mutation: {
-    assignRole: async (parent, {email, role}, context) => {
+    assignRole: async (_parent, {email, role}, context) => {
         try {
             const decoded = jwt.verify(context.token, process.env.JWT_Secret);
             if(decoded?.isAdmin){
