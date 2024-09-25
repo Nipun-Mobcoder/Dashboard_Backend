@@ -22,4 +22,3 @@ const authResolver = {
 };
 
 export default authResolver;
-//k set env deployment/login MONGO_URL/=/mongodb+srv://nipunbhardwaj:E4K1qtXWLFY4w117@chatcluster.cqlok.mongodb.net/?retryWrites=true&w=majority&appName=chatCluster
