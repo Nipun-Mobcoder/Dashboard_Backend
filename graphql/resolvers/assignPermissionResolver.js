@@ -1,12 +1,13 @@
-import jwt from "jsonwebtoken";
 import User from "../../models/User.js";
 import Permission from "../../models/Permission.js";
+import rateLimiter from "../../middleware/rateLimiter.js";
 
 const assignPermissionResolver = {
   Query: {
     fetchAll: async (_parent, _args, context) => {
         try {
             const decoded = context.decoded;
+            await rateLimiter(`${context.token}:fetchAll`);
             let isPermission
             const data = await Permission.findOne({ module: decoded?.email, operation: "FetchAll" });
             // console.log(data)
@@ -28,6 +29,7 @@ const assignPermissionResolver = {
     assignPermission: async (_parent, {email, permission}, context) => {
         try {
             const decoded = context.decoded;
+            await rateLimiter(`${context.token}:assignPermission`);
             let isPermission
             const data = await Permission.findOne({ module: decoded?.email, operation: "Assign" });
             isPermission = data?.isAllowed ?? false;

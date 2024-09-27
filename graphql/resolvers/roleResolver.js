@@ -1,11 +1,12 @@
-import jwt from "jsonwebtoken";
+import rateLimiter from "../../middleware/rateLimiter.js";
 import User from "../../models/User.js";
 
 const roleResolver = {
   Query: {
     getData: async (_parent, args, context) => {
       try {
-        const decoded = jwt.verify(context.token, process.env.JWT_Secret);
+        const decoded = context.decoded;
+        await rateLimiter(`${context.token}:getData`);
         return decoded;
       } catch (err) {
         console.log(err)
@@ -16,7 +17,8 @@ const roleResolver = {
   Mutation: {
     assignRole: async (_parent, {email, role}, context) => {
         try {
-            const decoded = jwt.verify(context.token, process.env.JWT_Secret);
+            const decoded = context.decoded;
+            await rateLimiter(`${context.token}:assignRole`);
             if(decoded?.isAdmin){
                 const updateRole = { role: role };
                 const userData = await User.findOne({email})

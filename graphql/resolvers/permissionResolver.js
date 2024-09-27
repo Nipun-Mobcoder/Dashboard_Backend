@@ -1,13 +1,14 @@
-import jwt from "jsonwebtoken";
 import Permission from "../../models/Permission.js";
 import User from "../../models/User.js";
 import client from "../../config/client.js";
+import rateLimiter from "../../middleware/rateLimiter.js";
 
 const permissionResolver = {
     Mutation : {
         update: async (_parent, {email, userName, password, role}, context) => {
             try {
                 const decoded = context.decoded;
+                await rateLimiter(`${context.token}:update`);
                 const data = await Permission.findOne( {module: decoded.email, operation: "Update" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     let user = await User.findOne({email});
@@ -31,6 +32,7 @@ const permissionResolver = {
         add: async (_parent, { userName, email, password, role }, context) => {
             try {
                 const decoded = context.decoded;
+                await rateLimiter(`${context.token}:add`);
                 const data = await Permission.findOne( {module: decoded.email, operation: "Add" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     const userDoc = await User.create({ userName, email, password, isAdmin: false, role : role });
@@ -49,6 +51,7 @@ const permissionResolver = {
         delete: async (_parent, {email}, context) => {
             try {
                 const decoded = context.decoded;
+                await rateLimiter(`${context.token}:delete`);
                 const data = await Permission.findOne({ module: decoded.email, operation: "Delete" });
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email  ) {
                     const deleteData = await User.findOneAndDelete( {email} );
