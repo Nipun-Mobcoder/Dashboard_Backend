@@ -25,7 +25,7 @@ const assignPermissionResolver = {
     },
   },
   Mutation: {
-    assignPermission: async (_parent, {email, permission}, context) => {
+    assignPermission: async (_parent, {input: { email, permission }}, context) => {
         try {
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:assignPermission`);

@@ -6,7 +6,7 @@ import { sendMail } from "../../helper/sendMail.js";
 
 const authResolver = {
   Query: {
-    login: async (_parent, { email, password }) => {
+    login: async (_parent, { user: { email, password }}) => {
       const userDoc = await User.findOne({ email });
       if(!userDoc) throw new Error("User not found.");
       if (password === userDoc.password) {
@@ -19,8 +19,8 @@ const authResolver = {
     },
   },
   Mutation: {
-    register: async (_parent, { userName, email, password, isAdmin }) => {
-      const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client" });
+    register: async (_parent, { user: {userName, email, password, isAdmin, address} }) => {
+      const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client", address });
       if(process.env.SEND_MAIL === "SENDGRID")
         await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com")
       else

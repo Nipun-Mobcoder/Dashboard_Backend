@@ -15,7 +15,7 @@ const roleResolver = {
     },
   },
   Mutation: {
-    assignRole: async (_parent, {email, role}, context) => {
+    assignRole: async (_parent, {input: { email, role }}, context) => {
         try {
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:assignRole`);

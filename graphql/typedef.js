@@ -1,9 +1,52 @@
 const typeDefs = `
+
+    scalar JSON
+
     type User {
         userName: String!
         email: String!
         isAdmin: Boolean!
         role: String!
+        address: JSON
+    }
+
+    input UserInput {
+        userName: String!
+        email: String!
+        password: String!
+        isAdmin: Boolean
+        address: JSON
+    }
+
+    input UpdateUserInput {
+        email: String!
+        userName: String
+        password: String
+        role: Role
+        address: JSON
+    }
+
+    input AddUserInput {
+        userName: String!
+        email: String!
+        password: String!
+        role: Role!
+        address: JSON
+    }
+
+    input AssignRoleInput {
+        email: String!
+        role: Role!
+    }
+
+    input AssignPermissionInput {
+        email: String!
+        permission: Operation!
+    }
+
+    input LoginInput {
+        email: String!
+        password: String!
     }
 
     enum Operation {
@@ -32,17 +75,17 @@ const typeDefs = `
     }
 
     type Query {
-        login(email: String!, password: String!): loginResponse
+        login(user: LoginInput!): loginResponse
         getData: User
         fetchAll: [User]
     }
 
     type Mutation {
-        register(userName: String!, email: String!, password: String!, isAdmin:Boolean): User
-        assignRole(email: String!, role: Role!): User
-        assignPermission(email: String!, permission: Operation!): Permission
-        update(email: String!, userName: String, password: String, role: Role): User
-        add(userName: String!, email: String!, password: String!, role: Role!): User
+        register(user: UserInput!): User
+        assignRole(input: AssignRoleInput!): User
+        assignPermission(input: AssignPermissionInput!): Permission
+        update(user: UpdateUserInput!): User
+        add(user: AddUserInput!): User
         delete(email: String!): User
     }
 

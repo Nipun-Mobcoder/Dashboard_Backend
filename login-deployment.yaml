@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: login1
+  name: login
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: login1
+      app: login
   template:
     metadata:
       labels:
-        app: login1
+        app: login
     spec:
       containers:
       - name: login-middleware

@@ -5,16 +5,20 @@ import rateLimiter from "../../middleware/rateLimiter.js";
 
 const permissionResolver = {
     Mutation : {
-        update: async (_parent, {email, userName, password, role}, context) => {
+        update: async (_parent, {user: { email, userName, password, role, address }}, context) => {
             try {
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:update`);
                 const data = await Permission.findOne( {user_id: decoded.id, operation: "Update" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     let user = await User.findOne({email});
+                    let updatedAddress = user.address;
+                    if (address) {
+                        updatedAddress = { ...user.address, ...address };
+                    }
                     user = await User.findOneAndUpdate( 
                             {_id: user._id}, 
-                            { role: role ?? user.role, userName: userName ?? user.userName, password: password ?? user.password }, 
+                            { role: role ?? user.role, userName: userName ?? user.userName, password: password ?? user.password, address: updatedAddress }, 
                             {new: true}
                         );
                     return user;
@@ -29,7 +33,7 @@ const permissionResolver = {
             }
         },
 
-        add: async (_parent, { userName, email, password, role }, context) => {
+        add: async (_parent, {user: { userName, email, password, role }}, context) => {
             try {
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:add`);
