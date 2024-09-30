@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      containers:
+      - name: dashboard-middleware
+        image: nipunmobcoder/dashboard
+        env: 
+        - name: MONGO_URL
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: MONGO_URL
+        - name: JWT_Secret
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: JWT_Secret
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: PASSWORD
+        - name: HOST
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: HOST
+        - name: PORT
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: PORT
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: AWS_REGION
+        - name: SENDGRID_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: SENDGRID_API_KEY
+        - name: SEND_MAIL
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secrets
+              key: SEND_MAIL
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 4000
