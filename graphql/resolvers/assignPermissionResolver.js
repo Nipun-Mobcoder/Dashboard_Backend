@@ -9,8 +9,7 @@ const assignPermissionResolver = {
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:fetchAll`);
             let isPermission
-            const data = await Permission.findOne({ module: decoded?.email, operation: "FetchAll" });
-            // console.log(data)
+            const data = await Permission.findOne({ user_id: decoded.id, operation: "FetchAll" });
             isPermission = data?.isAllowed ?? false;
             if(decoded?.isAdmin || isPermission ){
                 let allUsers = await User.find({});
@@ -31,17 +30,21 @@ const assignPermissionResolver = {
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:assignPermission`);
             let isPermission
-            const data = await Permission.findOne({ module: decoded?.email, operation: "Assign" });
+            const data = await Permission.findOne({ user_id: decoded?.id, operation: "Assign" });
             isPermission = data?.isAllowed ?? false;
             if(decoded?.isAdmin || isPermission ){
-                let permissionData = await Permission.findOne({ module: email, operation: permission });
-                if(permissionData) {
-                    permissionData = await Permission.findOneAndUpdate({_id: permissionData._id} ,{ isAllowed: true }, {new: true});
+                const userData = await User.findOne({email});
+                if(userData){
+                  let permissionData = await Permission.findOne({ user_id: userData._id, operation: permission });
+                  if(permissionData) {
+                      permissionData = await Permission.findOneAndUpdate({_id: permissionData._id} ,{ isAllowed: true }, {new: true});
+                  }
+                  else {
+                      permissionData = await Permission.create({isAllowed: true, module: email, operation: permission, user_id: userData._id})
+                  }
+                  return permissionData;
                 }
-                else {
-                    permissionData = await Permission.create({isAllowed: true, module: email, operation: permission})
-                }
-                return permissionData;
+                throw new Error("No such user found.");
             }
             else {
                 throw new Error("Sorry but only admin can perform this action");

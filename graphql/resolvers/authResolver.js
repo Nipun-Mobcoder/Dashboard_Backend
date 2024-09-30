@@ -1,10 +1,12 @@
 import client from "../../config/client.js";
 import User from "../../models/User.js";
 import jwt from "jsonwebtoken";
+import { sendMailSES } from "../../helper/sendMailSes.js";
+import { sendMail } from "../../helper/sendMail.js";
 
 const authResolver = {
   Query: {
-    login: async (parent, { email, password }) => {
+    login: async (_parent, { email, password }) => {
       const userDoc = await User.findOne({ email });
       if(!userDoc) throw new Error("User not found.");
       if (password === userDoc.password) {
@@ -17,8 +19,12 @@ const authResolver = {
     },
   },
   Mutation: {
-    register: async (parent, { userName, email, password, isAdmin }) => {
+    register: async (_parent, { userName, email, password, isAdmin }) => {
       const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client" });
+      if(process.env.SEND_MAIL === "SENDGRID")
+        await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com")
+      else
+        await sendMailSES(userDoc.userName, "nipunbhardwaj11@gmail.com")
       return userDoc;
     }
   },

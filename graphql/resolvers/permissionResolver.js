@@ -9,7 +9,7 @@ const permissionResolver = {
             try {
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:update`);
-                const data = await Permission.findOne( {module: decoded.email, operation: "Update" } ); 
+                const data = await Permission.findOne( {user_id: decoded.id, operation: "Update" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     let user = await User.findOne({email});
                     user = await User.findOneAndUpdate( 
@@ -33,7 +33,7 @@ const permissionResolver = {
             try {
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:add`);
-                const data = await Permission.findOne( {module: decoded.email, operation: "Add" } ); 
+                const data = await Permission.findOne( {user_id: decoded.id, operation: "Add" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     const userDoc = await User.create({ userName, email, password, isAdmin: false, role : role });
                     return userDoc;
@@ -52,7 +52,7 @@ const permissionResolver = {
             try {
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:delete`);
-                const data = await Permission.findOne({ module: decoded.email, operation: "Delete" });
+                const data = await Permission.findOne({ user_id: decoded.id, operation: "Delete" });
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email  ) {
                     const deleteData = await User.findOneAndDelete( {email} );
                     client.del(`token:${deleteData.email}`)
