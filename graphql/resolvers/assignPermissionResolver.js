@@ -6,6 +6,9 @@ const assignPermissionResolver = {
   Query: {
     fetchAll: async (_parent, _args, context) => {
         try {
+            if(!context.token) {
+              throw new Error("Please Login");
+            }
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:fetchAll`);
             let isPermission
@@ -27,6 +30,9 @@ const assignPermissionResolver = {
   Mutation: {
     assignPermission: async (_parent, {input: { email, permission }}, context) => {
         try {
+            if(!context.token) {
+              throw new Error("Please Login");
+            }
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:assignPermission`);
             let isPermission

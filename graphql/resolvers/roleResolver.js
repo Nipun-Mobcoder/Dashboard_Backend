@@ -5,6 +5,9 @@ const roleResolver = {
   Query: {
     getData: async (_parent, args, context) => {
       try {
+        if(!context.token) {
+          throw new Error("Please Login");
+        }
         const decoded = context.decoded;
         await rateLimiter(`${context.token}:getData`);
         return decoded;
@@ -17,6 +20,9 @@ const roleResolver = {
   Mutation: {
     assignRole: async (_parent, {input: { email, role }}, context) => {
         try {
+            if(!context.token) {
+              throw new Error("Please Login");
+            }
             const decoded = context.decoded;
             await rateLimiter(`${context.token}:assignRole`);
             if(decoded?.isAdmin){

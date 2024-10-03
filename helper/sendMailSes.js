@@ -1,4 +1,4 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import { SendEmailCommand } from '@aws-sdk/client-ses';
 import ejs from 'ejs';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -6,14 +6,6 @@ import { fileURLToPath } from 'url';
 import { sendMail } from '../config/s3.js';
 
 dotenv.config();
-
-const sesClient = new SESClient({
-    region: process.env.AWS_REGION,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
-});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

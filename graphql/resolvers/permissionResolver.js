@@ -7,11 +7,15 @@ const permissionResolver = {
     Mutation : {
         update: async (_parent, {user: { email, userName, password, role, address }}, context) => {
             try {
+                if(!context.token) {
+                    throw new Error("Please Login");
+                }
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:update`);
                 const data = await Permission.findOne( {user_id: decoded.id, operation: "Update" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     let user = await User.findOne({email});
+                    if(!user) throw new Error("User not found.")
                     let updatedAddress = user.address;
                     if (address) {
                         updatedAddress = { ...user.address, ...address };
@@ -33,13 +37,16 @@ const permissionResolver = {
             }
         },
 
-        add: async (_parent, {user: { userName, email, password, role }}, context) => {
+        add: async (_parent, {user: { userName, email, password, role, address }}, context) => {
             try {
+                if(!context.token) {
+                    throw new Error("Please Login");
+                }
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:add`);
                 const data = await Permission.findOne( {user_id: decoded.id, operation: "Add" } ); 
-                if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
-                    const userDoc = await User.create({ userName, email, password, isAdmin: false, role : role });
+                if( decoded?.isAdmin || data?.isAllowed ) {
+                    const userDoc = await User.create({ userName, email, password, isAdmin: false, role : role, address });
                     return userDoc;
                 }
                 else {
@@ -54,11 +61,15 @@ const permissionResolver = {
 
         delete: async (_parent, {email}, context) => {
             try {
+                if(!context.token) {
+                    throw new Error("Please Login");
+                }
                 const decoded = context.decoded;
                 await rateLimiter(`${context.token}:delete`);
                 const data = await Permission.findOne({ user_id: decoded.id, operation: "Delete" });
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email  ) {
                     const deleteData = await User.findOneAndDelete( {email} );
+                    if(!deleteData) throw new Error("User not found.")
                     client.del(`token:${deleteData.email}`)
                     return deleteData;
                 }
