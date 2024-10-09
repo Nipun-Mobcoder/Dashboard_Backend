@@ -11,8 +11,10 @@ const authResolver = {
       if(!userDoc) throw new Error("User not found.");
       if (password === userDoc.password) {
         const token = jwt.sign({ email: userDoc.email, id: userDoc._id, userName: userDoc.userName, isAdmin: userDoc?.isAdmin ?? false, role: userDoc?.role ?? "Client", address: userDoc?.address ?? null }, process.env.JWT_Secret);
+        const refresh_token = jwt.sign({id: userDoc._id, email: userDoc.email}, process.env.REFRESH_SECRET, { expiresIn: '1d' });
         client.setex(`token:${userDoc.email}`, 30*60,token);
-        return {token, name: userDoc.userName};
+        client.set(`refresh_token:${userDoc.email}`, refresh_token)
+        return {name: userDoc.userName,token, refresh_token};
       } else {
         throw new Error("Invalid credentials");
       }

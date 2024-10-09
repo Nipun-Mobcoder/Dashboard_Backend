@@ -21,7 +21,6 @@ dotenv.config();
 
 const httpServer = http.createServer(app);
 
-
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 const server = new ApolloServer({
@@ -40,22 +39,35 @@ app.use(
   expressMiddleware(server, {
     context: async ({ req }) => { 
         const token = req.headers.token || '';
-        if(token) {
+        const refresh_token = req.headers.refresh_token || '';
+        if(token && token!=="null") {
           try {
             const decoded = jwt.verify(token, process.env.JWT_Secret);
             if(token === await client.get(`token:${decoded?.email}`)) {
               return {
+                isLogged: true,
                 token,
                 decoded
               }
             }
+            else if(refresh_token) {
+                  return {
+                    refresh_token
+                  }
+                }
             else {
               throw new Error("Token expired.")
             }
           }
           catch (e) {
+            console.log("token", token, refresh_token)
             console.log(e);
             throw new Error(e?.message ?? "Token not vaild")
+          }
+        }
+        else if(refresh_token && refresh_token!=="null") {
+          return {
+            refresh_token
           }
         }  
      },

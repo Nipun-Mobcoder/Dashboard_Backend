@@ -2,16 +2,26 @@ import Permission from "../../models/Permission.js";
 import User from "../../models/User.js";
 import client from "../../config/client.js";
 import rateLimiter from "../../middleware/rateLimiter.js";
+import setToken from "../../middleware/setToken.js";
 
 const permissionResolver = {
     Mutation : {
         update: async (_parent, {user: { email, userName, password, role, address }}, context) => {
             try {
-                if(!context.token) {
-                    throw new Error("Please Login");
+                let {token, decoded} = context;
+            if(!token) {
+              if(context.refresh_token) {
+                const refreshed = await setToken(context.refresh_token);
+                token = refreshed.token;
+                decoded = refreshed.decoded;
+                return {
+                  message: "Sorry you've been logged out please fill this token",
+                  token: token,
                 }
-                const decoded = context.decoded;
-                await rateLimiter(`${context.token}:update`);
+              }
+              throw new Error("Please Login");
+            }
+                await rateLimiter(`${token}:update`);
                 const data = await Permission.findOne( {user_id: decoded.id, operation: "Update" } ); 
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     let user = await User.findOne({email});
@@ -39,11 +49,20 @@ const permissionResolver = {
 
         add: async (_parent, {user: { userName, email, password, role, address }}, context) => {
             try {
-                if(!context.token) {
-                    throw new Error("Please Login");
+                let {token, decoded} = context;
+            if(!token) {
+              if(context.refresh_token) {
+                const refreshed = await setToken(context.refresh_token);
+                token = refreshed.token;
+                decoded = refreshed.decoded;
+                return {
+                  message: "Sorry you've been logged out please fill this token",
+                  token: token,
                 }
-                const decoded = context.decoded;
-                await rateLimiter(`${context.token}:add`);
+              }
+              throw new Error("Please Login");
+            }
+                await rateLimiter(`${token}:add`);
                 const data = await Permission.findOne( {user_id: decoded.id, operation: "Add" } ); 
                 if( decoded?.isAdmin || data?.isAllowed ) {
                     const userDoc = await User.create({ userName, email, password, isAdmin: false, role : role, address });
@@ -61,11 +80,20 @@ const permissionResolver = {
 
         delete: async (_parent, {email}, context) => {
             try {
-                if(!context.token) {
-                    throw new Error("Please Login");
+                let {token, decoded} = context;
+            if(!token) {
+              if(context.refresh_token) {
+                const refreshed = await setToken(context.refresh_token);
+                token = refreshed.token;
+                decoded = refreshed.decoded;
+                return {
+                  message: "Sorry you've been logged out please fill this token",
+                  token: token,
                 }
-                const decoded = context.decoded;
-                await rateLimiter(`${context.token}:delete`);
+              }
+              throw new Error("Please Login");
+            }
+                await rateLimiter(`${token}:delete`);
                 const data = await Permission.findOne({ user_id: decoded.id, operation: "Delete" });
                 if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email  ) {
                     const deleteData = await User.findOneAndDelete( {email} );

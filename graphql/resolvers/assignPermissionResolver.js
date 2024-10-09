@@ -1,16 +1,26 @@
 import User from "../../models/User.js";
 import Permission from "../../models/Permission.js";
 import rateLimiter from "../../middleware/rateLimiter.js";
+import setToken from "../../middleware/setToken.js";
 
 const assignPermissionResolver = {
   Query: {
     fetchAll: async (_parent, _args, context) => {
         try {
-            if(!context.token) {
+          let {token, decoded} = context;
+            if(!token) {
+              if(context.refresh_token) {
+                const refreshed = await setToken(context.refresh_token);
+                token = refreshed.token;
+                decoded = refreshed.decoded;
+                return [{
+                  message: "Sorry you've been logged out please fill this token",
+                  token: token,
+                }]
+              }
               throw new Error("Please Login");
             }
-            const decoded = context.decoded;
-            await rateLimiter(`${context.token}:fetchAll`);
+            await rateLimiter(`${token}:fetchAll`);
             let isPermission
             const data = await Permission.findOne({ user_id: decoded.id, operation: "FetchAll" });
             isPermission = data?.isAllowed ?? false;
@@ -30,11 +40,20 @@ const assignPermissionResolver = {
   Mutation: {
     assignPermission: async (_parent, {input: { email, permission }}, context) => {
         try {
-            if(!context.token) {
-              throw new Error("Please Login");
+          let {token, decoded} = context;
+          if(!token) {
+            if(context.refresh_token) {
+              const refreshed = await setToken(context.refresh_token);
+              token = refreshed.token;
+              decoded = refreshed.decoded;
+              return {
+                message: "Sorry you've been logged out please fill this token",
+                token: token,
+              }
             }
-            const decoded = context.decoded;
-            await rateLimiter(`${context.token}:assignPermission`);
+            throw new Error("Please Login");
+          }
+            await rateLimiter(`${token}:assignPermission`);
             let isPermission
             const data = await Permission.findOne({ user_id: decoded?.id, operation: "Assign" });
             isPermission = data?.isAllowed ?? false;

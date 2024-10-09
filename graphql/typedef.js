@@ -3,11 +3,13 @@ const typeDefs = `
     scalar JSON
 
     type User {
-        userName: String!
-        email: String!
-        isAdmin: Boolean!
-        role: String!
+        userName: String
+        email: String
+        isAdmin: Boolean
+        role: String
         address: JSON
+        message: String
+        token: String
     }
 
     input UserInput {
@@ -72,6 +74,7 @@ const typeDefs = `
     type loginResponse {
         token: String
         name: String
+        refresh_token: String
     }
 
     type Query {
