@@ -79,17 +79,24 @@ const typeDefs = `
     }
 
     type UserRole {
-        email: String!
-        name: String!
+        email: String
+        name: String
+        address: JSON
     }
 
     type RoleGroup {
-        _id: String!
-        users: [UserRole!]!
+        _id: String
+        users: [UserRole]
     }
 
     type showRoleType {
-        getRoleGroups: [RoleGroup!]!
+        getRoleGroups: [RoleGroup]
+        message: String
+        token: String
+    }
+
+    type permissionType {
+        permissionArr: [String]
         message: String
         token: String
     }
@@ -100,7 +107,7 @@ const typeDefs = `
         getData: User
         fetchAll: [User]
         match(role: Role!): [User]
-        getPermissions: [String]
+        getPermissions: permissionType
         showRole: showRoleType
     }
 

@@ -12,7 +12,6 @@ const getPermissionResolver = {
                     if(context.refresh_token) {
                         const refreshed = await setToken(context.refresh_token);
                         token = refreshed.token;
-                        decoded = refreshed.decoded;
                         return {
                             message: "Sorry you've been logged out please fill this token",
                             token: token,
@@ -36,7 +35,7 @@ const getPermissionResolver = {
                     }
                 ])
                 const permission = perm.map(item => item.operation);
-                return permission;
+                return { permissionArr: permission };
             }
             catch (e) { 
                 console.log(e);
@@ -65,7 +64,8 @@ const getPermissionResolver = {
                             "users": {
                                 "$push": {
                                     "email": "$email", 
-                                    "name": "$userName"
+                                    "name": "$userName",
+                                    "address": "$address"
                                 }
                               }
                         }
@@ -73,7 +73,7 @@ const getPermissionResolver = {
                 ])
                 return {getRoleGroups: perm};
             }
-            catch (e) { 
+            catch (e) {
                 console.log(e);
                 throw new Error(e?.message ?? "Something went wrong");
             }
