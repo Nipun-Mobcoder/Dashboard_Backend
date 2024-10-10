@@ -57,6 +57,7 @@ const typeDefs = `
         FetchAll 
         Update 
         Assign
+        Match
     }
 
     type Permission {
@@ -77,10 +78,30 @@ const typeDefs = `
         refresh_token: String
     }
 
+    type UserRole {
+        email: String!
+        name: String!
+    }
+
+    type RoleGroup {
+        _id: String!
+        users: [UserRole!]!
+    }
+
+    type showRoleType {
+        getRoleGroups: [RoleGroup!]!
+        message: String
+        token: String
+    }
+
+
     type Query {
         login(user: LoginInput!): loginResponse
         getData: User
         fetchAll: [User]
+        match(role: Role!): [User]
+        getPermissions: [String]
+        showRole: showRoleType
     }
 
     type Mutation {

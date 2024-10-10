@@ -60,7 +60,6 @@ app.use(
             }
           }
           catch (e) {
-            console.log("token", token, refresh_token)
             console.log(e);
             throw new Error(e?.message ?? "Token not vaild")
           }
