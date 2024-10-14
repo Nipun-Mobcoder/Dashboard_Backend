@@ -66,6 +66,11 @@ spec:
             secretKeyRef:
               name: dashboard-secret
               key: SEND_MAIL
+        - name: REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-secret
+              key: REFRESH_SECRET
         resources:
           limits:
             memory: "128Mi"

@@ -50,7 +50,7 @@ app.use(
                 decoded
               }
             }
-            else if(refresh_token) {
+            else if(refresh_token && refresh_token!=="null") {
                   return {
                     refresh_token
                   }

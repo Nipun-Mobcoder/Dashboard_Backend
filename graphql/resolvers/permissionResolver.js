@@ -14,10 +14,10 @@ const permissionResolver = {
                         const refreshed = await setToken(context.refresh_token);
                         token = refreshed.token;
                         decoded = refreshed.decoded;
-                        return {
+                        return [{
                             message: "Sorry you've been logged out please fill this token",
                             token: token,
-                        }
+                        }]
                     }
                     throw new Error("Please Login");
                 }
