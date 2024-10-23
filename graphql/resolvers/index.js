@@ -4,6 +4,8 @@ import permissionResolver from './permissionResolver.js';
 import roleResolver from './roleResolver.js';
 import GraphQLJSON from 'graphql-type-json';
 import getPermissionResolver from './getPermissionResolver.js';
+import paymentResolver from './paymentResolver.js';
+import paymentDashboard from './paymentDashboard.js';
 
 const resolvers = {
   JSON: GraphQLJSON,
@@ -12,13 +14,18 @@ const resolvers = {
     ...roleResolver.Query,
     ...assignPermissionResolver.Query,
     ...permissionResolver.Query,
-    ...getPermissionResolver.Query
+    ...getPermissionResolver.Query,
+    ...paymentDashboard.Query
   },
   Mutation: {
     ...authResolver.Mutation,
     ...roleResolver.Mutation,
     ...assignPermissionResolver.Mutation,
-    ...permissionResolver.Mutation
+    ...permissionResolver.Mutation,
+    ...paymentResolver.Mutation
+  },
+  Subscription: {
+    ...paymentResolver.Subscription
   }
 };
 

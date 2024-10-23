@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   isAdmin: {type: Boolean, default: false},
   role: {type: String, enum: ['Admin', 'Client', 'Engineer', 'Tester'], default: 'Client'},
+  walletAmount: Number,
   address: Schema.Types.Mixed
 });
 

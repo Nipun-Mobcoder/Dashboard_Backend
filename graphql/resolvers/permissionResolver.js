@@ -41,7 +41,7 @@ const permissionResolver = {
                 console.log(e);
                 throw new Error(e?.message ?? "Something went wrong");
                 }
-            },
+            }
     },
     Mutation : {
         update: async (_parent, {user: { email, userName, password, role, address }}, context) => {

@@ -36,6 +36,50 @@ const assignPermissionResolver = {
             throw new Error(err?.message ?? "Invalid token");
           }
     },
+    getAllUsersPermission: async (_parent, {}, context) => {
+      try {
+          let {token, decoded} = context;
+          if(!token) {
+              if(context.refresh_token) {
+                  const refreshed = await setToken(context.refresh_token);
+                  token = refreshed.token;
+                  decoded = refreshed.decoded;
+                  return {
+                      message: "Sorry you've been logged out please fill this token",
+                      token: token,
+                  }
+              }
+              throw new Error("Please Login");
+          }
+
+          await rateLimiter(`${token}:getAllUsersPermission`);
+          const permissionData = await Permission.findOne({ module: decoded.email, operation: "AllUsersPermission" });
+          if( decoded?.isAdmin || permissionData?.isAllowed ) {
+              const allPermissions = await Permission.aggregate([
+                  {
+                    "$group": {
+                      "_id": "$operation",
+                      "users": {
+                        "$push": {
+                          "module": "$module",
+                          "operation": "$operation",
+                          "isAllowed": "$isAllowed",
+                        }
+                      }
+                    }
+                  }
+                ])
+              console.log(allPermissions.find(permission => permission._id === "FetchAll"))
+              return {users: allPermissions};
+          }
+          else {
+              throw new Error("You're not allowed to perform this action.")
+          }
+      }
+      catch (e) {
+          throw new Error(e?.message ?? "Looks like something went wrong.")
+      }
+  }
   },
   Mutation: {
     assignPermission: async (_parent, {input: { email, permission }}, context) => {

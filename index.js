@@ -14,6 +14,7 @@ import typeDefs from './graphql/typedef.js';
 import resolvers from './graphql/resolvers/index.js';
 import connectDB from './config/db.js';
 import client from "./config/client.js";
+import { GraphQLError } from "graphql";
 
 const app = express();
 app.use(express.json());
@@ -61,7 +62,11 @@ app.use(
           }
           catch (e) {
             console.log(e);
-            throw new Error(e?.message ?? "Token not vaild")
+            throw new GraphQLError(e?.message ?? "Token not vaild", {
+              extensions: {
+                code: 'UNAUTHENTICATED'
+              },
+            });
           }
         }
         else if(refresh_token && refresh_token!=="null") {
