@@ -8,7 +8,7 @@ import { freecurrencyapi, month, monthMapping, earnedMonthly } from "../../helpe
 
 const paymentDashboard = {
     Query : {
-        getPaymentDetails : async (_parent, {}, context) => {
+        paymentHistory : async (_parent, {}, context) => {
             try {
                 let {token, decoded} = context;
                 if(!token) {
@@ -22,7 +22,7 @@ const paymentDashboard = {
                     }
                     throw new Error("Please Login");
                 }
-                await rateLimiter(`${token}:getPaymentDetails`);
+                await rateLimiter(`${token}:paymentHistory`);
                 const userData = await User.findOne({email: decoded.email})
                 const getPayment = await Payment.find({ $or: [{ user_id: userData._id }, { from_id: userData._id }] })
                 const payment = getPayment.map(async payment => {
@@ -33,12 +33,13 @@ const paymentDashboard = {
                     const hours = date.getHours();
                     const minutes = date.getMinutes();
                     
-                    const formattedTime = `${date.getDate()}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()} (${hours}:${minutes.toString().padStart(2, "0")})`;
+                    const time = `${ hours <= 12 ? hours : hours % 12 != 0 ? hours % 12 : 12 }:${minutes.toString().padStart(2, "0")} ${ ( hours < 12 || hours == 24 ) ? "AM" : "PM" }`
+                    const formattedTime = `${date.getDate()}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()} (${time})`;
                     var convertedAmount = payment.amount;
 
                     return {
                         id: payment._id.toString(),
-                        amount: payment.amount,
+                        amountInUSD: payment.amount,
                         senderEmail: sender.email,
                         receivingEmail: receiver.email,
                         paymentDate: formattedTime,
@@ -167,38 +168,38 @@ const paymentDashboard = {
                 })
 
                 const currencyAmt = await Payment.aggregate([
-                    [
-                        {
-                          "$group": {
-                            "_id": "$currency",
-                            "val": {
-                              "$push": {
-                                "amount": "$amount",
-                                "id": "$user_id"
-                              }
-                            }
+                  [
+                    {
+                      "$group": {
+                        "_id": "$currency",
+                        "val": {
+                          "$push": {
+                            "amount": "$amount",
+                            "id": "$user_id"
                           }
-                        },
-                        {
-                          "$project": {
-                            "amt": {
-                              "$sum": {
-                                "$map": {
-                                  "input": "$val", 
-                                  "as": "entry",
-                                  "in": {
-                                    "$cond": [
-                                      { "$eq": ["$$entry.id", ObjectId.createFromHexString(decoded.id)] },
-                                      "$$entry.amount",
-                                      0
-                                    ]
-                                  }
-                                }
+                        }
+                      }
+                    },
+                    {
+                      "$project": {
+                        "amt": {
+                          "$sum": {
+                            "$map": {
+                              "input": "$val", 
+                              "as": "entry",
+                              "in": {
+                                "$cond": [
+                                  { "$eq": ["$$entry.id", ObjectId.createFromHexString(decoded.id)] },
+                                  "$$entry.amount",
+                                  0
+                                ]
                               }
                             }
                           }
                         }
-                      ]
+                      }
+                    }
+                  ]
                 ])
 
                 const nullAmt = currencyAmt.find(cur => cur._id === null)

@@ -59,6 +59,19 @@ const typeDefs = `
         currency: String!
     }
 
+    input PaginationHistory {
+        pageNumber: Int!
+        limit: Int!
+    }
+    
+    type Permission {
+        module: String
+        operation: Operation
+        isAllowed: Boolean
+        message: String
+        token: String
+        }
+        
     enum Operation {
         Add
         Delete 
@@ -67,14 +80,6 @@ const typeDefs = `
         Assign
         Match
         AllUsersPermission
-    }
-
-    type Permission {
-        module: String
-        operation: Operation
-        isAllowed: Boolean
-        message: String
-        token: String
     }
 
     enum Role {
@@ -168,13 +173,13 @@ const typeDefs = `
 
     type PaymentDetails {
         id: String
-        amount: Int
+        amountInUSD: Int
         senderEmail: String
         receivingEmail: String
         paymentDate: String
         paymentMethod: String
         currency: String
-        amountConvertToUSD: Int
+        isRecieved: Boolean
     }
 
     type allPaymentDetails {
@@ -214,6 +219,14 @@ const typeDefs = `
         amountByCurrencySpent: [amountByCurrency]
     }
 
+    type paginationType {
+        paymentDetails: [PaymentDetails]
+        totalPage: Int
+        nextPageNumber: Int
+        token: String
+        message: String
+    }
+
     type Query {
         login(user: LoginInput!): loginResponse
         getData: User
@@ -222,8 +235,9 @@ const typeDefs = `
         getPermissions: permissionType
         showRole: showRoleType
         getAllUsersPermission: allUsersType
-        getPaymentDetails: allPaymentDetails
+        paymentHistory: allPaymentDetails
         dashboard: dashboardType
+        paginationPaymentHistory(paginationHistory: PaginationHistory!): paginationType
     }
 
     type Mutation {

@@ -1,6 +1,7 @@
+import jwt from "jsonwebtoken";
+
 import client from "../../config/client.js";
 import User from "../../models/User.js";
-import jwt from "jsonwebtoken";
 import { sendMailSES } from "../../helper/sendMailSes.js";
 import { sendMail } from "../../helper/sendMail.js";
 

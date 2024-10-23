@@ -15,7 +15,8 @@ const resolvers = {
     ...assignPermissionResolver.Query,
     ...permissionResolver.Query,
     ...getPermissionResolver.Query,
-    ...paymentDashboard.Query
+    ...paymentDashboard.Query,
+    ...paymentResolver.Query
   },
   Mutation: {
     ...authResolver.Mutation,

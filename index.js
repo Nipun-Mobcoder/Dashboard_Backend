@@ -9,12 +9,12 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { expressMiddleware } from "@apollo/server/express4";
 import { WebSocketServer } from "ws";
 import jwt from "jsonwebtoken";
+import { GraphQLError } from "graphql";
 
 import typeDefs from './graphql/typedef.js';
 import resolvers from './graphql/resolvers/index.js';
 import connectDB from './config/db.js';
 import client from "./config/client.js";
-import { GraphQLError } from "graphql";
 
 const app = express();
 app.use(express.json());
