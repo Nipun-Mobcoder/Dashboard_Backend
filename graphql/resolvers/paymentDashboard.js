@@ -9,50 +9,51 @@ import { freecurrencyapi, month, monthMapping, earnedMonthly } from "../../helpe
 const paymentDashboard = {
     Query : {
         paymentHistory : async (_parent, {}, context) => {
-            try {
-                let {token, decoded} = context;
-                if(!token) {
-                    if(context.refresh_token) {
-                        const refreshed = await setToken(context.refresh_token);
-                        token = refreshed.token;
-                        return {
-                            message: "Sorry you've been logged out please fill this token",
-                            token: token,
-                        }
-                    }
-                    throw new Error("Please Login");
+          try {
+              let {token, decoded} = context;
+              if(!token) {
+                if(context.refresh_token) {
+                  const refreshed = await setToken(context.refresh_token);
+                  token = refreshed.token;
+                  return {
+                    message: "Sorry you've been logged out please fill this token",
+                    token: token,
+                  }
                 }
-                await rateLimiter(`${token}:paymentHistory`);
-                const userData = await User.findOne({email: decoded.email})
-                const getPayment = await Payment.find({ $or: [{ user_id: userData._id }, { from_id: userData._id }] })
-                const payment = getPayment.map(async payment => {
-                    const sender = await User.findOne({ _id: payment.from_id });
-                    const receiver = await User.findOne({ _id: payment.user_id });
-                    const date = new Date(payment.paymentDate);
-                    
-                    const hours = date.getHours();
-                    const minutes = date.getMinutes();
-                    
-                    const time = `${ hours <= 12 ? hours : hours % 12 != 0 ? hours % 12 : 12 }:${minutes.toString().padStart(2, "0")} ${ ( hours < 12 || hours == 24 ) ? "AM" : "PM" }`
-                    const formattedTime = `${date.getDate()}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()} (${time})`;
-                    var convertedAmount = payment.amount;
+                throw new Error("Please Login");
+              }
+              await rateLimiter(`${token}:paymentHistory`);
+              const userData = await User.findOne({email: decoded.email})
+              const getPayment = await Payment.find({ $or: [{ user_id: userData._id }, { from_id: userData._id }] })
+              const payment = getPayment.map(async payment => {
+                const sender = await User.findOne({ _id: payment.from_id });
+                const receiver = await User.findOne({ _id: payment.user_id });
+                const date = new Date(payment.paymentDate);
+                
+                const hours = date.getHours();
+                const minutes = date.getMinutes();
+                
+                const time = `${ hours <= 12 ? hours : hours % 12 != 0 ? hours % 12 : 12 }:${minutes.toString().padStart(2, "0")} ${ ( hours < 12 || hours == 24 ) ? "AM" : "PM" }`
+                const formattedTime = `${date.getDate()}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()} (${time})`;
+                var convertedAmount = payment.amount;
 
-                    return {
-                        id: payment._id.toString(),
-                        amountInUSD: payment.amount,
-                        senderEmail: sender.email,
-                        receivingEmail: receiver.email,
-                        paymentDate: formattedTime,
-                        paymentMethod: payment.paymentMethod,
-                        currency: payment.currency ?? 'USD',
-                        amountConvertToUSD: Math.floor(convertedAmount)
-                    };
-                });
-                return { paymentDetails: payment }
+                return {
+                  id: payment._id.toString(),
+                  amountInUSD: payment.amount,
+                  senderEmail: sender.email,
+                  receivingEmail: receiver.email,
+                  paymentDate: formattedTime,
+                  paymentMethod: payment.paymentMethod,
+                  currency: payment.currency ?? 'USD',
+                  amountConvertToUSD: Math.floor(convertedAmount),
+                  isRecieved: receiver.email === decoded.email ? true : false 
+                };
+              });
+              return { paymentDetails: payment }
             }
             catch (e) { 
-                console.log(e);
-                throw new Error(e?.message ?? "Something went wrong");
+              console.log(e);
+              throw new Error(e?.message ?? "Something went wrong");
             }
         },
         dashboard: async ( _parent, {}, context ) => {
@@ -60,14 +61,14 @@ const paymentDashboard = {
                 let {token, decoded} = context;
                 if(!token) {
                     if(context.refresh_token) {
-                        const refreshed = await setToken(context.refresh_token);
-                        token = refreshed.token;
-                        return {
-                            message: "Sorry you've been logged out please fill this token",
-                            token: token,
-                        }
+                      const refreshed = await setToken(context.refresh_token);
+                      token = refreshed.token;
+                      return {
+                        message: "Sorry you've been logged out please fill this token",
+                        token: token,
+                      }
                     }
-                    throw new Error("Please Login");
+                throw new Error("Please Login");
                 }
                 await rateLimiter(`${token}:dashboard`);
                 let totalAmountEarned = await Payment.aggregate([
@@ -106,28 +107,28 @@ const paymentDashboard = {
                     //   }
                     // }
                     [
-                        {
-                            "$group": {
-                            "_id": { 
-                                "$month": "$paymentDate" 
-                            },
-                            "totalAmount": { 
-                                "$sum": { 
-                                    "$cond": [
-                                        { 
-                                        "$and":
-                                            [ 
-                                                {"$eq": [{ "$year": "$paymentDate" }, 2024]}, 
-                                                { "$eq": ["$user_id", ObjectId.createFromHexString(decoded.id)] }, 
-                                            ]
-                                        }, 
-                                        "$amount",
-                                        0
-                                    ]
-                                }
-                                }
+                      {
+                        "$group": {
+                          "_id": { 
+                            "$month": "$paymentDate" 
+                          },
+                          "totalAmount": { 
+                            "$sum": { 
+                              "$cond": [
+                                { 
+                                "$and":
+                                  [ 
+                                    {"$eq": [{ "$year": "$paymentDate" }, 2024]}, 
+                                    { "$eq": ["$user_id", ObjectId.createFromHexString(decoded.id)] }, 
+                                  ]
+                                }, 
+                                "$amount",
+                                0
+                              ]
                             }
+                          }
                         }
+                      }
                     ]
                   );
                 paymentsGroupedByMonth.map(payment => {
@@ -137,28 +138,28 @@ const paymentDashboard = {
                 })
                 let spentGroupedByMonth = await Payment.aggregate(
                     [
-                        {
-                            "$group": {
-                            "_id": { 
-                                "$month": "$paymentDate" 
-                            },
-                            "totalAmount": { 
-                                "$sum": { 
-                                    "$cond": [
-                                        { 
-                                        "$and":
-                                            [ 
-                                                {"$eq": [{ "$year": "$paymentDate" }, 2024]}, 
-                                                { "$eq": ["$from_id", ObjectId.createFromHexString(decoded.id)] }, 
-                                            ]
-                                        }, 
-                                        "$amount",
-                                        0
+                      {
+                        "$group": {
+                          "_id": { 
+                            "$month": "$paymentDate" 
+                          },
+                          "totalAmount": { 
+                            "$sum": { 
+                              "$cond": [
+                                { 
+                                "$and":
+                                    [ 
+                                      {"$eq": [{ "$year": "$paymentDate" }, 2024]}, 
+                                      { "$eq": ["$from_id", ObjectId.createFromHexString(decoded.id)] }, 
                                     ]
-                                }
-                                }
+                                }, 
+                                "$amount",
+                                0
+                              ]
                             }
+                          }
                         }
+                      }
                     ]
                   );
                 spentGroupedByMonth.map(payment => {
@@ -221,41 +222,39 @@ const paymentDashboard = {
                         } )
 
                         const currencySpent = await Payment.aggregate([
-                            [
-                                {
-                                  "$group": {
-                                    "_id": "$currency",
-                                    "val": {
-                                      "$push": {
-                                        "amount": "$amount",
-                                        "id": "$from_id"
-                                      }
-                                    }
-                                  }
-                                },
-                                {
-                                  "$project": {
-                                    "amt": {
-                                      "$sum": {
-                                        "$map": {
-                                          "input": "$val", 
-                                          "as": "entry",
-                                          "in": {
-                                            "$cond": [
-                                              { "$eq": ["$$entry.id", ObjectId.createFromHexString(decoded.id)] },
-                                              "$$entry.amount",
-                                              0
-                                            ]
-                                          }
-                                        }
-                                      }
+                          {
+                            "$group": {
+                              "_id": "$currency",
+                              "val": {
+                                "$push": {
+                                  "amount": "$amount",
+                                  "id": "$from_id"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "$project": {
+                              "amt": {
+                                "$sum": {
+                                  "$map": {
+                                    "input": "$val", 
+                                    "as": "entry",
+                                    "in": {
+                                      "$cond": [
+                                        { "$eq": ["$$entry.id", ObjectId.createFromHexString(decoded.id)] },
+                                        "$$entry.amount",
+                                        0
+                                      ]
                                     }
                                   }
                                 }
-                              ]
+                              }
+                            }
+                          }
                         ])
         
-                        const nullSpentAmt = currencySpent.find(cur => cur._id === null)
+                    const nullSpentAmt = currencySpent.find(cur => cur._id === null)
 
                     const totalAmountByCurrencySpent = currencySpent.filter(cur => cur._id !== null).map( async (cur, ind) => {
                         if (cur._id === 'USD') {
