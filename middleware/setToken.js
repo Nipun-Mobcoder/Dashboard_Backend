@@ -18,7 +18,7 @@ const setToken = async (refresh_token) => {
             }
           }
           const userDoc = await User.findOne({ email: decoded.email });
-          token = jwt.sign({ email: userDoc.email, id: userDoc._id, userName: userDoc.userName, isAdmin: userDoc?.isAdmin ?? false, role: userDoc?.role ?? "Client", address: userDoc?.address ?? null }, process.env.JWT_Secret);
+          token = jwt.sign({ email: userDoc.email, id: userDoc._id, userName: userDoc.userName, isAdmin: userDoc?.isAdmin ?? false, role: userDoc?.role ?? "Client", address: userDoc?.address ?? null, walletAmount: userDoc?.walletAmount ?? 0 }, process.env.JWT_Secret);
           await client.setex(`token:${decoded?.email}`, 30*60, token)
           decoded = jwt.verify(token, process.env.JWT_Secret);
           return {

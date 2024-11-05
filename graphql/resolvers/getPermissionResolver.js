@@ -67,7 +67,7 @@ const getPermissionResolver = {
                                     "name": "$userName",
                                     "address": "$address"
                                 }
-                              }
+                            }
                         }
                     },
                 ])

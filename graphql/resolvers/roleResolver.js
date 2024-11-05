@@ -20,6 +20,7 @@ const roleResolver = {
           throw new Error("Please Login");
         }
         await rateLimiter(`${token}:getData`);
+        console.log(decoded)
         return decoded;
       } catch (err) {
         console.log(err)

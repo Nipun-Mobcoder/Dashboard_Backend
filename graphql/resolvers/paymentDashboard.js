@@ -272,7 +272,7 @@ const paymentDashboard = {
                         return {...cur, amt: Math.floor(amount)};
                     } )
 
-                return { totalAmountEarned: totalAmountEarned.moneySpent, totalAmountSpent: totalAmountSpent.moneyEarned, earnedMonthly, 
+                return { totalAmountEarned: totalAmountEarned?.moneySpent ?? 0, totalAmountSpent: totalAmountSpent?.moneyEarned ?? 0, earnedMonthly, 
                     spentMonthly: month ,amountByCurrencyEarned: totalAmountByCurrencyEarned, amountByCurrencySpent: totalAmountByCurrencySpent};
             }
             catch (e) {

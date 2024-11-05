@@ -15,7 +15,7 @@ const authResolver = {
         const userDoc = await User.findOne({ email });
         if(!userDoc) throw new Error("User not found.");
         if (password === userDoc.password) {
-          const token = jwt.sign({ email: userDoc.email, id: userDoc._id, userName: userDoc.userName, isAdmin: userDoc?.isAdmin ?? false, role: userDoc?.role ?? "Client", address: userDoc?.address ?? null }, process.env.JWT_Secret);
+          const token = jwt.sign({ email: userDoc.email, id: userDoc._id, userName: userDoc.userName, isAdmin: userDoc?.isAdmin ?? false, role: userDoc?.role ?? "Client", address: userDoc?.address ?? null, walletAmount: userDoc?.walletAmount ?? 0 }, process.env.JWT_Secret);
           const refresh_token = jwt.sign({id: userDoc._id, email: userDoc.email}, process.env.REFRESH_SECRET, { expiresIn: '1d' });
           client.setex(`token:${userDoc.email}`, 30*60,token);
           client.set(`refresh_token:${userDoc.email}`, refresh_token)
