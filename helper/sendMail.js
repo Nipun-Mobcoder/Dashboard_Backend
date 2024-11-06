@@ -11,13 +11,14 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const sendMail = async (userName, email) => {
+export const sendMail = async (userName, email, fileName, complaintMessage = "") => {
   try {
-    const templatePath = path.join(__dirname, 'mail.ejs');
+    const templatePath = path.join(__dirname, fileName);
     const emailHTML = await ejs.renderFile(templatePath, {
       userName: userName,
       email: email,
-      platform: process.env.SEND_MAIL
+      platform: process.env.SEND_MAIL,
+      complaintMessage: complaintMessage
     });
 
     const msg = {

@@ -227,6 +227,12 @@ const typeDefs = `
         message: String
     }
 
+    type refundType {
+        refund: String
+        token: String
+        message: String
+    }
+
     type Query {
         login(user: LoginInput!): loginResponse
         getData: User
@@ -238,6 +244,7 @@ const typeDefs = `
         paymentHistory: allPaymentDetails
         dashboard: dashboardType
         paginationPaymentHistory(paginationHistory: PaginationHistory!): paginationType
+        refund(complaintMessage: String): refundType
     }
 
     type Mutation {

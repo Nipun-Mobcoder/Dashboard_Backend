@@ -6,6 +6,7 @@ import GraphQLJSON from 'graphql-type-json';
 import getPermissionResolver from './getPermissionResolver.js';
 import paymentResolver from './paymentResolver.js';
 import paymentDashboard from './paymentDashboard.js';
+import refundResolver from './refundResolver.js';
 
 const resolvers = {
   JSON: GraphQLJSON,
@@ -16,7 +17,8 @@ const resolvers = {
     ...permissionResolver.Query,
     ...getPermissionResolver.Query,
     ...paymentDashboard.Query,
-    ...paymentResolver.Query
+    ...paymentResolver.Query,
+    ...refundResolver.Query
   },
   Mutation: {
     ...authResolver.Mutation,

@@ -4,7 +4,7 @@ import User from "../../models/User.js";
 
 const roleResolver = {
   Query: {
-    getData: async (_parent, args, context) => {
+    getData: async (_parent, _args, context) => {
       try {
         let {token, decoded} = context;
         if(!token) {
@@ -20,7 +20,6 @@ const roleResolver = {
           throw new Error("Please Login");
         }
         await rateLimiter(`${token}:getData`);
-        console.log(decoded)
         return decoded;
       } catch (err) {
         console.log(err)

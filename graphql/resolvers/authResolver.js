@@ -38,9 +38,9 @@ const authResolver = {
           throw new Error("Please type a correct email Id");
         const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client", address });
         if(process.env.SEND_MAIL === "SENDGRID")
-          await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com")
+          await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs")
         else
-          await sendMailSES(userDoc.userName, "nipunbhardwaj11@gmail.com")
+          await sendMailSES(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs")
         return userDoc;
       }
       catch(e) {
