@@ -63,6 +63,13 @@ const typeDefs = `
         pageNumber: Int!
         limit: Int!
     }
+
+    input refundInput {
+        complaintMessage: String!
+        refundAmount: Int!
+        recieverEmail: String!
+        Date: String!
+    }
     
     type Permission {
         module: String
@@ -244,7 +251,7 @@ const typeDefs = `
         paymentHistory: allPaymentDetails
         dashboard: dashboardType
         paginationPaymentHistory(paginationHistory: PaginationHistory!): paginationType
-        refund(complaintMessage: String): refundType
+        refund(refundInput: refundInput!): refundType
     }
 
     type Mutation {

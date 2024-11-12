@@ -5,7 +5,7 @@ import setToken from "../../middleware/setToken.js";
 
 const refundResolver =  {
     Query: {
-        refund: async (_parent, { complaintMessage }, context) => {
+        refund: async (_parent, { complaintMessage, refundAmount, recieverEmail, Date }, context) => {
             try {
                 let {token, decoded} = context;
                 if(!token) {
@@ -22,9 +22,9 @@ const refundResolver =  {
                 }
                 await rateLimiter(`${token}:refund`);
                 if(process.env.SEND_MAIL === "SENDGRID")
-                    await sendMail(decoded.userName, "nipunbhardwaj11@gmail.com", "refundMail.ejs", complaintMessage)
+                    await sendMail(decoded.userName, "nipunbhardwaj11@gmail.com", "refundMail.ejs", "Refund Complaint", complaintMessage, refundAmount, recieverEmail, Date)
                 else
-                    await sendMailSES(decoded.userName, "nipunbhardwaj11@gmail.com", "refundMail.ejs", complaintMessage)
+                    await sendMailSES(decoded.userName, "nipunbhardwaj11@gmail.com", "refundMail.ejs", "Refund Complaint", complaintMessage, refundAmount, recieverEmail, Date)
                 return { refund: "Message Sent Succesfully" };
             }
             catch(e) {

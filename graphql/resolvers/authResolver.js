@@ -17,8 +17,8 @@ const authResolver = {
         if (password === userDoc.password) {
           const token = jwt.sign({ email: userDoc.email, id: userDoc._id, userName: userDoc.userName, isAdmin: userDoc?.isAdmin ?? false, role: userDoc?.role ?? "Client", address: userDoc?.address ?? null, walletAmount: userDoc?.walletAmount ?? 0 }, process.env.JWT_Secret);
           const refresh_token = jwt.sign({id: userDoc._id, email: userDoc.email}, process.env.REFRESH_SECRET, { expiresIn: '1d' });
-          client.setex(`token:${userDoc.email}`, 30*60,token);
-          client.set(`refresh_token:${userDoc.email}`, refresh_token)
+          client.setex(`token:${userDoc.email}`, 30*60, token);
+          client.setex(`refresh_token:${userDoc.email}`, 24*60*60, refresh_token)
           return {name: userDoc.userName,token, refresh_token};
         } else {
           throw new Error("Invalid credentials");
@@ -38,9 +38,9 @@ const authResolver = {
           throw new Error("Please type a correct email Id");
         const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client", address });
         if(process.env.SEND_MAIL === "SENDGRID")
-          await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs")
+          await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs", "Welcome to Our Service!")
         else
-          await sendMailSES(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs")
+          await sendMailSES(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs", "Welcome to Our Service!")
         return userDoc;
       }
       catch(e) {

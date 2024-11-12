@@ -10,14 +10,17 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const sendMailSES = async (userName, email, fileName, complaintMessage="") => {
+export const sendMailSES = async (userName, email, fileName ,subject , complaintMessage, refundAmount, recieverEmail, Date) => {
   try {
     const templatePath = path.join(__dirname, fileName);
     const emailHTML = await ejs.renderFile(templatePath, {
-      userName: userName,
-      email: email,
+      userName,
+      email,
       platform: process.env.SEND_MAIL,
-      complaintMessage: complaintMessage
+      complaintMessage, 
+      refundAmount, 
+      recieverEmail, 
+      Date
     });
 
     const params = {
@@ -34,7 +37,7 @@ export const sendMailSES = async (userName, email, fileName, complaintMessage=""
           },
           Subject: {
             Charset: 'UTF-8',
-            Data: 'Welcome to Our Service!'
+            Data: subject
           }
         }
       };
