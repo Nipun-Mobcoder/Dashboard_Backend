@@ -1,5 +1,4 @@
 const typeDefs = `
-
     scalar JSON
 
     type User {
@@ -11,6 +10,7 @@ const typeDefs = `
         message: String
         token: String
         walletAmount: Int
+        phoneNumber: Int
     }
 
     input UserInput {
@@ -19,6 +19,7 @@ const typeDefs = `
         password: String!
         isAdmin: Boolean
         address: JSON
+        phoneNumber: Int
     }
 
     input UpdateUserInput {
@@ -77,7 +78,7 @@ const typeDefs = `
         isAllowed: Boolean
         message: String
         token: String
-        }
+    }
         
     enum Operation {
         Add

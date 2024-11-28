@@ -31,12 +31,12 @@ const authResolver = {
     },
   },
   Mutation: {
-    register: async (_parent, { user: {userName, email, password, isAdmin, address} }) => {
+    register: async (_parent, { user: {userName, email, password, isAdmin, address, phoneNumber} }) => {
       try {
         const emailRegex = /^[^\W_]+\w*(?:[.-]\w*)*[^\W_]+@[^\W_]+(?:[.-]?\w*[^\W_]+)*(?:\.[^\W_]{2,})$/;
         if(!emailRegex.test(email)) 
           throw new Error("Please type a correct email Id");
-        const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client", address });
+        const userDoc = await User.create({ userName, email, password, isAdmin, role : isAdmin ? "Admin" : "Client", address, phoneNumber });
         if(process.env.SEND_MAIL === "SENDGRID")
           await sendMail(userDoc.userName, "nipunbhardwaj11@gmail.com", "mail.ejs", "Welcome to Our Service!")
         else

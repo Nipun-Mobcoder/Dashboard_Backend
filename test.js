@@ -42,20 +42,20 @@ above = 10, down = 12;
 var car = new Car("BMW");
 // console.log(car.userName, car.val)
 Object.defineProperties(car, {
-        'property1': {
-            value: 'Four wheelers',
-            writable: true,
-            enumerable: true,
-            configurable: true
-        },
-        'property2': {
-            value: 'Automatic',
-            writable: false,
-            enumerable: true,
-            configurable: true
-        }
-        }
-    )
+    'property1': {
+        value: 'Four wheelers',
+        writable: true,
+        enumerable: true,
+        configurable: true
+    },
+    'property2': {
+        value: 'Automatic',
+        writable: false,
+        enumerable: true,
+        configurable: true
+    }
+    }
+)
 Vehicle.prototype.property3 = "Hello"
 car.property1 = 'Two wheelers'
 console.log("car's property1 " ,car.property1, "car's property2 " ,car.property2, "car's property3 " ,car.property3)
@@ -87,7 +87,7 @@ console.log("equal = ",(arr1.length === arr2.length) &&
 console.log("max is: ",Math.max(...arr1))
 
 function outerFunction(outerVariable) {
-    return function innerFunction(innerVariable) {
+    return (innerVariable) => {
       console.log("Outer Variable:", outerVariable);
       console.log("Inner Variable:", innerVariable);
     };
@@ -100,3 +100,28 @@ for (var i = 0; i < 4; i++) {
     console.log(i)
     setTimeout(() => console.log("The index is: ",i))
 }
+
+const memoizeAddition = () => {
+    let cache = {};
+    return (value) => {
+      if (value in cache) {
+        console.log("Fetching from cache");
+        return cache[value]; 
+      } else {
+        console.log("Calculating result");
+        let result = value + 20;
+        cache[value] = result;
+        return result;
+      }
+    };
+  };
+  const addition = memoizeAddition();
+  console.log(addition(20));
+  console.log(addition(20));
+const word = "WoRd";
+let result = "";
+for( var w of word ){
+    if(w.charCodeAt() >= 65 && w.charCodeAt() <= 90) result += w.toLowerCase();
+    else result += w;
+}
+console.log(result)
