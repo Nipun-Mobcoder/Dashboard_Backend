@@ -133,7 +133,7 @@ const permissionResolver = {
                 }
                 await rateLimiter(`${token}:delete`);
                 const data = await Permission.findOne({ user_id: decoded.id, operation: "Delete" });
-                if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email  ) {
+                if( decoded?.isAdmin || data?.isAllowed || email === decoded?.email ) {
                     const deleteData = await User.findOneAndDelete( {email} );
                     if(!deleteData) throw new Error("User not found.")
                     client.del(`token:${deleteData.email}`)

@@ -10,7 +10,7 @@ const typeDefs = `
         message: String
         token: String
         walletAmount: Int
-        phoneNumber: Int
+        phoneNumber: Float
     }
 
     input UserInput {
