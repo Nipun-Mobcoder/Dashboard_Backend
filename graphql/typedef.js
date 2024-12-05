@@ -7,10 +7,10 @@ const typeDefs = `
         isAdmin: Boolean
         role: String
         address: JSON
-        message: String
-        token: String
         walletAmount: Int
         phoneNumber: Float
+        message: String
+        token: String
     }
 
     input UserInput {
@@ -213,7 +213,7 @@ const typeDefs = `
 
     type amountByCurrency {
         _id: String
-        amt: Int
+        amt: Float
     }
 
     type dashboardType { 

@@ -94,18 +94,6 @@ const paymentDashboard = {
                 totalAmountSpent = totalAmountSpent.find(item => item._id.toString() === decoded.id);
                 totalAmountEarned = totalAmountEarned.find(item => item._id.toString() === decoded.id);
                 let paymentsGroupedByMonth = await Payment.aggregate(
-                    // {
-                    //   "$match": {
-                    //     "user_id": ObjectId.createFromHexString(decoded.id),
-                    //     "$expr": { $eq: [{ "$year": "$paymentDate" }, 2024] }
-                    //   }
-                    // },
-                    // {
-                    //   "$group": {
-                    //     "_id": { "$month": "$paymentDate" },
-                    //     "totalAmount": { "$sum": "$amount" }
-                    //   }
-                    // }
                     [
                       {
                         "$group": {
@@ -218,7 +206,7 @@ const paymentDashboard = {
                             }
                             const amount = cur.amt  * amountConvertToUSD.data[cur._id];
                             // cur.amt = Math.floor(amount)
-                            return {...cur, amt: Math.floor(amount)};
+                            return {...cur, amt: (amount/100).toFixed(2)};
                         } )
 
                         const currencySpent = await Payment.aggregate([
@@ -268,8 +256,7 @@ const paymentDashboard = {
                             throw new Error(amountConvertToUSD.errors.currencies[0] ?? 'Currency is invalid')
                         }
                         const amount = cur.amt  * amountConvertToUSD.data[cur._id];
-                        // cur.amt = Math.floor(amount)
-                        return {...cur, amt: Math.floor(amount)};
+                        return {...cur, amt: (amount/100).toFixed(2)};
                     } )
 
                 return { totalAmountEarned: totalAmountEarned?.moneySpent ?? 0, totalAmountSpent: totalAmountSpent?.moneyEarned ?? 0, earnedMonthly, 
